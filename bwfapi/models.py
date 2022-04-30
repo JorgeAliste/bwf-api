@@ -8,3 +8,12 @@ class Group(models.Model):
 
     class Meta:
         unique_together = (('name', 'location'),)
+
+
+class Event(models.Model):
+    team_1 = models.CharField(max_length=32, blank=False)
+    team_2 = models.CharField(max_length=32, blank=False)
+    time = models.TimeField(null=False, blank=False)
+    score_1 = models.IntegerField(null=True, blank=True)
+    score_2 = models.IntegerField(null=True, blank=True)
+    group = models.ForeignKey(Group, related_name='events', on_delete=models.CASCADE)
