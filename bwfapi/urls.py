@@ -4,8 +4,8 @@ from bwfapi import views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register('groups', views.GroupViewset)
-router.register('events', views.EventViewset)
+router.register('groups', views.GroupViewSet)
+router.register('events', views.EventViewSet)
 
 urlpatterns = [
     re_path(r'^', include(router.urls))
