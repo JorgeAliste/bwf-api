@@ -1,4 +1,15 @@
+from django.contrib.auth.models import User
 from django.db import models
+
+
+def upload_path_handler(instance, filename):
+    return f'avatar/{instance.user.id}/{filename}'
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, related_name='profile',
+                                on_delete=models.CASCADE)  # Maybe this could be done with custom User model
+    image = models.ImageField(upload_to=upload_path_handler, blank=True)
 
 
 class Group(models.Model):
