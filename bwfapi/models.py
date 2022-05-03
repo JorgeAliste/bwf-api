@@ -10,6 +10,8 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile',
                                 on_delete=models.CASCADE)  # Maybe this could be done with custom User model
     image = models.ImageField(upload_to=upload_path_handler, blank=True)
+    is_premium = models.BooleanField(default=False)
+    bio = models.CharField(max_length=256, blank=True, null=True)
 
 
 class Group(models.Model):

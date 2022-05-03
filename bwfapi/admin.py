@@ -10,8 +10,8 @@ class GroupAdmin(admin.ModelAdmin):
 
 @admin.register(UserProfile)
 class GroupAdmin(admin.ModelAdmin):
-    fields = ('user', 'image')
-    list_display = ('id', 'user', 'image')
+    fields = ('user', 'image', 'is_premium', 'bio')
+    list_display = ('id', 'user', 'image', 'is_premium', 'bio')
 
 
 @admin.register(Event)
