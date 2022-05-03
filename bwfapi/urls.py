@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register('groups', views.GroupViewSet)
 router.register('events', views.EventViewSet)
 router.register('users', views.UserViewSet)
+router.register('profiles', views.UserProfileViewSet)
 
 urlpatterns = [
     re_path(r'^', include(router.urls)),
