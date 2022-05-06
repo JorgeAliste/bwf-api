@@ -1,3 +1,5 @@
+from abc import ABC
+
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
@@ -6,6 +8,12 @@ from .models import Group, Event, UserProfile
 
 
 class ChangePasswordSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        pass
+
+    def update(self, instance, validated_data):
+        pass
+
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
