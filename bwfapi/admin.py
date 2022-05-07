@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Group, Event, UserProfile
+from .models import Group, Event, UserProfile, Member
 
 
 @admin.register(Group)
@@ -18,3 +18,9 @@ class GroupAdmin(admin.ModelAdmin):
 class EventAdmin(admin.ModelAdmin):
     fields = ('team_1', 'team_2', 'time', 'score_1', 'score_2', 'group')
     list_display = ('id', 'team_1', 'team_2', 'time', 'score_1', 'score_2', 'group')
+
+
+@admin.register(Member)
+class MemberAdmin(admin.ModelAdmin):
+    fields = ('user', 'group', 'admin')
+    list_display = ('user', 'group', 'admin')

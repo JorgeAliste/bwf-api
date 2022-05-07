@@ -6,6 +6,7 @@ from rest_framework import routers
 router = routers.DefaultRouter()
 router.register('groups', views.GroupViewSet)
 router.register('events', views.EventViewSet)
+router.register('members', views.MemberViewSet)
 router.register('users', views.UserViewSet)
 router.register('profiles', views.UserProfileViewSet)
 

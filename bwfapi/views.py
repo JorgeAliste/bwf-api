@@ -7,9 +7,9 @@ from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from .models import Group, Event, UserProfile
+from .models import Group, Event, UserProfile, Member
 from .serializers import GroupSerializer, EventSerializer, GroupFullSerializer, UserSerializer, UserProfileSerializer, \
-    ChangePasswordSerializer
+    ChangePasswordSerializer, MemberSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -56,6 +56,51 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+
+
+class MemberViewSet(viewsets.ModelViewSet):
+    queryset = Member.objects.all()
+    serializer_class = MemberSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    @action(methods=['post'], detail=False)
+    def join(self, request):
+        if 'group' in request.data and 'user' in request.data:
+            try:
+                group = Group.objects.get(id=request.data['group'])
+                user = User.objects.get(id=request.data['user'])
+                member = Member.objects.create(group=group, user=user, admin=False)
+                serializer = MemberSerializer(member, many=False)
+                response = {'message': "Joined to  a group", 'results': serializer.data}
+                response_status = status.HTTP_200_OK
+            except (Exception,):
+                response = {'message': 'Can not join to the group'}
+                response_status = status.HTTP_400_BAD_REQUEST
+        else:
+            response = {'message': 'Wrong params'}
+            response_status = status.HTTP_400_BAD_REQUEST
+
+        return Response(response, status=response_status)
+
+    @action(methods=['post'], detail=False)
+    def leave(self, request):
+        if 'group' in request.data and 'user' in request.data:
+            try:
+                group = Group.objects.get(id=request.data['group'])
+                user = User.objects.get(id=request.data['user'])
+                member = Member.objects.get(group=group, user=user)
+                member.delete()
+                response = {'message': "Left the group"}
+                response_status = status.HTTP_200_OK
+            except (Exception,):
+                response = {'message': 'Can not leave the group'}
+                response_status = status.HTTP_400_BAD_REQUEST
+        else:
+            response = {'message': 'Wrong params'}
+            response_status = status.HTTP_400_BAD_REQUEST
+
+        return Response(response, status=response_status)
 
 
 class CustomObtainAuthToken(ObtainAuthToken):
