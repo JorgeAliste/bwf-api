@@ -7,9 +7,9 @@ from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from .models import Group, Event, UserProfile, Member
+from .models import Group, Event, UserProfile, Member, Comment
 from .serializers import GroupSerializer, EventSerializer, GroupFullSerializer, UserSerializer, UserProfileSerializer, \
-    ChangePasswordSerializer, MemberSerializer
+    ChangePasswordSerializer, MemberSerializer, CommentSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -37,6 +37,13 @@ class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = UserProfileSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (AllowAny,)
 
 
 class GroupViewSet(viewsets.ModelViewSet):

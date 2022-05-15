@@ -7,6 +7,7 @@ router = routers.DefaultRouter()
 router.register('groups', views.GroupViewSet)
 router.register('events', views.EventViewSet)
 router.register('members', views.MemberViewSet)
+router.register('comments', views.CommentViewSet)
 router.register('users', views.UserViewSet)
 router.register('profiles', views.UserProfileViewSet)
 
