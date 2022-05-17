@@ -51,7 +51,7 @@ class BetSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ('id', 'team_1', 'team_2', 'time')
+        fields = ('id', 'team_1', 'team_2', 'time', 'group')
 
 
 class EventFullSerializer(serializers.ModelSerializer):
