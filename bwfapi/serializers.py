@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Sum
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
@@ -45,7 +47,7 @@ class BetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Bet
-        fields = ('id', 'user', 'event', 'score_1', 'score_2')
+        fields = ('id', 'user', 'event', 'score_1', 'score_2', 'points')
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -56,10 +58,19 @@ class EventSerializer(serializers.ModelSerializer):
 
 class EventFullSerializer(serializers.ModelSerializer):
     event_bets = BetSerializer(many=True)
+    is_admin = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
-        fields = ('id', 'team_1', 'team_2', 'time', 'score_1', 'score_2', 'group', 'event_bets')
+        fields = ('id', 'team_1', 'team_2', 'time', 'score_1', 'score_2', 'group', 'event_bets', 'is_admin')
+
+    def get_is_admin(self, obj):
+        user = self.context['request'].user
+        try:
+            member = Member.objects.get(group=obj.group, user=user)
+            return member.admin
+        except ObjectDoesNotExist:
+            return None
 
 
 class MemberSerializer(serializers.ModelSerializer):
@@ -101,10 +112,10 @@ class GroupFullSerializer(serializers.ModelSerializer):
         people_points = []
         members = obj.members.all()
         for member in members:
-            points = 0
+            points = Bet.objects.filter(event__group=obj, user=member.user.id).aggregate(pts=Sum('points'))
             member_serialized = MemberSerializer(member, many=False)
             member_data = member_serialized.data
-            member_data['points'] = points
+            member_data['points'] = points['pts']
             people_points.append(member_data)
 
         return people_points

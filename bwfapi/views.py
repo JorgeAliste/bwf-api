@@ -73,6 +73,42 @@ class EventViewSet(viewsets.ModelViewSet):
         serializer = EventFullSerializer(instance, many=False, context={'request': request})
         return Response(serializer.data)
 
+    @action(detail=True, methods=['PUT'])
+    def set_result(self, request, pk):
+        event = self.get_object()
+
+        if 'event' in request.data and 'score1' in request.data and 'score2' in request.data \
+                and event.time < datetime.now(pytz.UTC):
+
+            event.score_1 = request.data['score1']
+            event.score_2 = request.data['score2']
+            event.save()
+            self.calculate_points()
+            serializer = EventFullSerializer(event, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            response = {'message': "Wrong params."}
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+    def calculate_points(self):
+        event = self.get_object()
+        bets = event.event_bets.all()
+        for bet in bets:
+            user_points = 0
+
+            if bet.score_1 == event.score_1 and bet.score_2 == event.score_2:
+                user_points = 3
+            else:
+                score_final = event.score_1 - event.score_2
+                bet_final = bet.score_1 - bet.score_2
+
+                if (score_final > 0 and bet_final > 0) or (score_final == bet_final == 0) or (
+                        score_final < 0 and bet_final < 0):
+                    user_points = 1
+
+            bet.points = user_points
+            bet.save()
+
 
 class BetViewSet(viewsets.ModelViewSet):
     queryset = Bet.objects.all()
@@ -102,8 +138,7 @@ class BetViewSet(viewsets.ModelViewSet):
 
             in_group = self.check_user_in_group(event, request.user)
 
-            # if event.time > datetime.now(pytz.UTC) and in_group:
-            if in_group:
+            if event.time > datetime.now(pytz.UTC) and in_group:
                 score_1 = request.data['score1']
                 score_2 = request.data['score2']
 
