@@ -1,2 +1,2 @@
-# bwf-api
-Api for the application betwithfirens made with Django
+# BetWithFriends Course
+API for the application betwithfriends made with **Django Rest-Framework**.
