@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
@@ -57,12 +58,26 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class EventFullSerializer(serializers.ModelSerializer):
-    event_bets = BetSerializer(many=True)
+    event_bets = serializers.SerializerMethodField()
     is_admin = serializers.SerializerMethodField()
+    num_bets = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
-        fields = ('id', 'team_1', 'team_2', 'time', 'score_1', 'score_2', 'group', 'event_bets', 'is_admin')
+        fields = ('id', 'team_1', 'team_2', 'time', 'score_1', 'score_2', 'group', 'event_bets', 'is_admin', 'num_bets')
+
+    def get_num_bets(self, obj):
+        number_bets = Bet.objects.filter(event=obj).count()
+        return number_bets
+
+    def get_event_bets(self, obj):
+        if obj.time < timezone.now():
+            bets = Bet.objects.filter(event=obj)
+        else:
+            user = self.context['request'].user
+            bets = Bet.objects.filter(event=obj, user=user)
+        serializer = BetSerializer(bets, many=True)
+        return serializer.data
 
     def get_is_admin(self, obj):
         user = self.context['request'].user
@@ -90,7 +105,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ('id', 'name', 'location', 'description')
+        fields = ('id', 'name', 'location', 'description', 'num_members')
 
 
 class GroupFullSerializer(serializers.ModelSerializer):
